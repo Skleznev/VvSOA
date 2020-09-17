@@ -3,7 +3,8 @@ using System.Threading;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
+using System.Collections.Generic;using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace VvSOA
 {
@@ -11,15 +12,6 @@ namespace VvSOA
     {
         static TcpListener listener;
         const int LIMIT = 5;
-
-        static Dictionary<string, string> employees =
- new Dictionary<string, string>()
- {
- {"john", "manager"},
- {"jane", "steno"},
- {"jim", "clerk"},
- {"jack", "salesman"}
- };
 
         static void Main(string[] args)
         {
@@ -50,17 +42,20 @@ namespace VvSOA
                     StreamReader sr = new StreamReader(s);
                     StreamWriter sw = new StreamWriter(s);
                     sw.AutoFlush = true; // enable automatic flushing
-                    sw.WriteLine("{0} Employees available",
-                    employees.Count);
+                    sw.WriteLine("Соединение установлено");
 
                     while (true)
                     {
-                        string name = sr.ReadLine();
-                        if (name == "" || name == null) break;
-                        string job =
-                        employees[name];
-                        if (job == null) job = "No such employee";
-                        sw.WriteLine(job);
+                                               
+                        Byte[] bytes = new Byte[256];
+                        string data = null;
+                        int i = s.Read(bytes, 0, bytes.Length);
+                        data = System.Text.Encoding.UTF8.GetString(bytes, 0, i);
+                        bytes = System.Text.Encoding.UTF8.GetBytes(splitMsg(data));
+                        s.Write(bytes, 0, bytes.Length);
+
+                        Console.Write(data);
+                        Console.ReadKey();
                     }
                     s.Close();
                 }
@@ -71,5 +66,18 @@ namespace VvSOA
             }
         }
 
+        public static string splitMsg(string msg)
+        {
+            string[] words = Regex.Split(msg.ToLower(), @"\W").Distinct().ToArray();
+
+            Array.Sort(words);
+            string result = "";
+            foreach(string word in words){
+                if (word == "") continue;
+                result += word + "\n";
+            }
+
+            return result;
+        }
     }
 }
