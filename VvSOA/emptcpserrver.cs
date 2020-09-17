@@ -16,6 +16,8 @@ namespace VvSOA
         static void Main(string[] args)
         {
 
+            
+
             Int32 port = 13000;            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
             listener = new TcpListener(localAddr, port);
             listener.Start();
@@ -43,16 +45,52 @@ namespace VvSOA
                     StreamWriter sw = new StreamWriter(s);
                     sw.AutoFlush = true; // enable automatic flushing
                     sw.WriteLine("Соединение установлено");
-
-                    while (true)
+                    bool isConnected = true;
+                    while (isConnected)
                     {
                                                
                         Byte[] bytes = new Byte[256];
                         string data = null;
                         int i = s.Read(bytes, 0, bytes.Length);
                         data = System.Text.Encoding.UTF8.GetString(bytes, 0, i);
-                        bytes = System.Text.Encoding.UTF8.GetBytes(splitMsg(data));
-                        s.Write(bytes, 0, bytes.Length);
+
+                        switch (data)
+                        {
+                            case "List":
+                                using (StreamReader file = File.OpenText("list.txt"))
+                                {
+                                    string result = "";
+                                    string line = "";
+                                    while ((line = file.ReadLine()) != null)
+                                    {
+                                        result += line;
+                                    }
+                                    bytes = System.Text.Encoding.UTF8.GetBytes(result);
+                                    s.Write(bytes, 0, bytes.Length);
+                                }
+                                break;
+                            case " ":
+                                bytes = System.Text.Encoding.UTF8.GetBytes("Соединение завершено");
+                                s.Write(bytes, 0, bytes.Length);
+                                isConnected = false;
+                                break;
+                            default:
+                                bytes = System.Text.Encoding.UTF8.GetBytes("Message added: " + data);
+                                s.Write(bytes, 0, bytes.Length);
+
+                                using (StreamWriter file = new StreamWriter("list.txt", true))
+                                {
+                                    file.Write(data + "; ");
+                                    Console.WriteLine("\nЗапись добавлена");
+                                }
+
+
+                                break;
+
+                        }
+
+
+                        
                         Console.Write(data);
                     }
                     s.Close();
@@ -64,18 +102,6 @@ namespace VvSOA
             }
         }
 
-        public static string splitMsg(string msg)
-        {
-            string[] words = Regex.Split(msg.ToLower(), @"\W").Distinct().ToArray();
-
-            Array.Sort(words);
-            string result = "";
-            foreach(string word in words){
-                if (word == "") continue;
-                result += word + "\n";
-            }
-
-            return result;
-        }
+        
     }
 }
