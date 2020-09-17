@@ -24,9 +24,9 @@ class EmployeeTCPClient
             {
                 Console.Write("Введите предложение: ");
                 string msg = Console.ReadLine();
-                sw.WriteLine(msg);
+
                 Byte[] bytes = new Byte[256];                bytes = System.Text.Encoding.UTF8.GetBytes(msg);
-                s.Write(bytes, 0, bytes.Length);                int i = s.Read(bytes, 0, bytes.Length);                msg = System.Text.Encoding.UTF8.GetString(bytes, 0, i);                Console.Write(msg);
+                s.Write(bytes, 0, bytes.Length);                bytes = new Byte[256];                int i = s.Read(bytes, 0, bytes.Length);                msg = System.Text.Encoding.UTF8.GetString(bytes, 0, i);                Console.Write(msg + "\n");
             }
             s.Close();
         }

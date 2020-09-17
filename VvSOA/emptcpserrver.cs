@@ -53,9 +53,7 @@ namespace VvSOA
                         data = System.Text.Encoding.UTF8.GetString(bytes, 0, i);
                         bytes = System.Text.Encoding.UTF8.GetBytes(splitMsg(data));
                         s.Write(bytes, 0, bytes.Length);
-
                         Console.Write(data);
-                        Console.ReadKey();
                     }
                     s.Close();
                 }
